@@ -1,5 +1,4 @@
 import router from "@/router";
-import { Array } from "core-js";
 import { getRequest } from "./api";
 
 export const initMenu = (router,store)=>{
@@ -10,7 +9,7 @@ export const initMenu = (router,store)=>{
         if(data){
             let fmtRoutes = formatRoutes(data);
             router.addRoutes(fmtRoutes);
-            store.commit(initRoutes,fmtRoutes);
+            store.commit('initRoutes',fmtRoutes);
         }
     })
 }
@@ -36,7 +35,18 @@ export const formatRoutes=(routes)=>{
             meta:meta,
             children:children,
             component(resolve){
-                require(['../views/'+component+'.vue'],resolve);
+                // 根据要去的菜单的组件名字前缀判断去哪个文件夹下的vue界面
+                if(component.startWith("Emp")){
+                    require(['../views/emp/'+component+'.vue'],resolve);
+                }else if(component.startWith("Per")){
+                    require(['../views/per/'+component+'.vue'],resolve);
+                }else if(component.startWith("Sal")){
+                    require(['../views/sal/'+component+'.vue'],resolve);
+                }else if(component.startWith("Sta")){
+                    require(['../views/sta/'+component+'.vue'],resolve);
+                }else if(component.startWith("Sys")){
+                    require(['../views/sys/'+component+'.vue'],resolve);
+                }
             }
         }
         fmRoutes.push(fmRouter);
