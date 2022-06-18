@@ -15,12 +15,12 @@
                 </el-dropdown>
             </el-header>
             <el-container>
-                <el-aside>
-                    <el-menu router>
-                        <el-submenu index="1" v-for="(item,index) in this.$router.options.routes" 
+                <el-aside width="200px">
+                    <el-menu router unique-opened>
+                        <el-submenu :index="index+''" v-for="(item,index) in routes" 
                                 v-if="!item.hidden" :key="index">
                             <template slot="title">
-                                <i class="el-icon-location"></i>
+                                <i style="color: #409eff;margin-right: 5px" :class="item.iconCls"></i>
                                 <span>{{item.name}}</span>
                             </template>
                            <el-menu-item :index="child.path" v-for="(child,indexj) in item.children" :key="indexj">
@@ -45,6 +45,11 @@ export default {
             user: JSON.parse(window.sessionStorage.getItem("user"))
         }
     },
+    computed:{
+        routes(){
+            return this.$store.state.routes;
+        }
+    },
     methods:{
         commandHandler(cmd){
             if(cmd=='logout'){
@@ -55,7 +60,9 @@ export default {
                 }).then(() => {
                     this.getRequest('/logout');
                     window.sessionStorage.removeItem("user");
-                    this.$router.replace("/")
+                    // 初始化菜单容器面的内容
+                    this.$store.commit('initRoutes', []);
+                    this.$router.replace("/");
                 }).catch(() => {
                     this.$message({
                         type: 'info',
