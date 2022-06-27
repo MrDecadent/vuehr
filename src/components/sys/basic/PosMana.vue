@@ -30,11 +30,12 @@
                 <el-table-column
                     prop="name"
                     label="职位名称"
-                    width="120">
+                    width="180">
                 </el-table-column>
                 <el-table-column
                     prop="createdate"
-                    label="创建时间">
+                    label="创建时间"
+                    width="160">
                 </el-table-column>
                 <el-table-column
                     label="操作">
@@ -53,6 +54,19 @@
                 </el-table-column>
             </el-table>
         </div>
+        <el-dialog
+            title="修改职位"
+            :visible.sync="dialogVisible"
+            width="30%">
+            <div>
+                <el-tag>职位名称</el-tag>
+                <el-input class="updatePosInput" size="small" v-model="updatePos.name"></el-input>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogVisible = false">取消</el-button>
+                <el-button size="small" type="primary" @click="doUpdate">确定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -70,6 +84,10 @@ import { getRequest } from "@/utils/api"
                 pos:{
                     name:''
                 },
+                dialogVisible: false,
+                updatePos:{
+                    name:''
+                },
                 positions: []
             }
         },
@@ -77,8 +95,18 @@ import { getRequest } from "@/utils/api"
             this.initPositions();
         },
         methods:{
+            doUpdate(){
+                this.putRequest("/system/basic/pos/",this.updatePos).then(resp=>{
+                    if(resp){
+                        this.initPositions();
+                        this.updatePos.name = '';
+                        this.dialogVisible=false
+                    }
+                })
+            },
             showEditView(index,data){
-
+                Object.assign(this.updatePos,data);
+                this.dialogVisible = true;
             },
             handleDelete(index,data){
                 this.$confirm('此操作将永久删除【' + data.name + '】职位, 是否继续?', '提示', {
@@ -123,6 +151,10 @@ import { getRequest } from "@/utils/api"
 </script>
 
 <style>
+    .updatePosInput {
+        width: 200px;
+        margin-left: 8px;
+    }
     .addPosInput{
         width: 300px;
         margin-right:5px
