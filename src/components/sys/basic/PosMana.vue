@@ -14,6 +14,7 @@
         <div class="posManaMain">
             <el-table
                 :data="positions"
+                @selection-change="handleSelectionChange"
                 border
                 stripe
                 size="small"
@@ -53,6 +54,8 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <el-button type="danger" size="small" style="margin-top:8px" 
+                        :disabled="multipleSelection.length == 0" @click="deleteMulty">批量删除</el-button>
         </div>
         <el-dialog
             title="修改职位"
@@ -88,6 +91,7 @@ import { getRequest } from "@/utils/api"
                 updatePos:{
                     name:''
                 },
+                multipleSelection:[],
                 positions: []
             }
         },
@@ -95,6 +99,10 @@ import { getRequest } from "@/utils/api"
             this.initPositions();
         },
         methods:{
+            handleSelectionChange(val){
+                this.multipleSelection = val;
+                console.log(val);
+            },
             doUpdate(){
                 this.putRequest("/system/basic/pos/",this.updatePos).then(resp=>{
                     if(resp){
@@ -116,6 +124,28 @@ import { getRequest } from "@/utils/api"
                 }).then(() => {
                     console.log("del");
                     this.deleteRequest("/system/basic/pos/" + data.id).then(resp => {
+                        if (resp) {
+                            this.initPositions();
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            deleteMulty(){
+                this.$confirm('此操作将永久删除【' + this.multipleSelection.length + '】个职位, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let ids='?';
+                    this.multipleSelection.forEach(element => {
+                        ids += 'ids=' + element.id +'&';
+                    });
+                    this.deleteRequest("/system/basic/pos/" + ids).then(resp => {
                         if (resp) {
                             this.initPositions();
                         }
