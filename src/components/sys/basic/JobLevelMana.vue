@@ -12,7 +12,7 @@
                         :value="item">
                 </el-option>
             </el-select>
-            <el-button icon="el-icon-plus" type="primary" size="small" @click="addJobLevel">添加</el-button>
+            <el-button icon="el-icon-plus" type="primary" size="small" @click="addJoblevel">添加</el-button>
         </div>
         <div>
             <el-table
@@ -40,11 +40,11 @@
                         width="150">
                 </el-table-column>
                 <el-table-column
-                        prop="titleLevel"
+                        prop="titlelevel"
                         label="职称级别">
                 </el-table-column>
                 <el-table-column
-                        prop="createDate"
+                        prop="createdate"
                         label="创建时间">
                 </el-table-column>
                 <el-table-column
@@ -76,6 +76,7 @@
                     name: '',
                     titleLevel: ''
                 },
+                jls:[],
                 titleLevels: [
                     '正高级',
                     '副高级',
@@ -83,6 +84,25 @@
                     '初级',
                     '员级',
                 ]
+            }
+        },
+        mounted(){
+            this.initJls();
+        },
+        methods:{
+            addJoblevel(){
+                this.postRequest("/system/basic/job/",this.jl).then((resp)=>{
+                    if(resp){
+                        this.initJls();
+                    }
+                })
+            },
+            initJls(){
+                this.getRequest("/system/basic/job/").then((resp) => {
+                    if(resp){
+                        this.jls = resp;
+                    }
+                });
             }
         }
     }
