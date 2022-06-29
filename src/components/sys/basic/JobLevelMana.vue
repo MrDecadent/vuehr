@@ -3,7 +3,7 @@
         <div>
             <el-input size="small" v-model="jl.name" style="width: 300px;" prefix-icon="el-icon-plus"
                       placeholder="添加职称..."></el-input>
-            <el-select v-model="jl.titleLevel" placeholder="职称等级" size="small"
+            <el-select v-model="jl.titlelevel" placeholder="职称等级" size="small"
                        style="margin-left: 5px;margin-right: 5px">
                 <el-option
                         v-for="item in titleLevels"
@@ -62,8 +62,59 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <el-button type="danger" size="small" style="margin-top: 10px" :disabled="multipleSelection.length==0"
+                       @click="deleteMany">批量删除
+            </el-button>
         </div>
-                    
+        <el-dialog
+                title="修改职称"
+                :visible.sync="dialogVisible"
+                width="30%">
+            <div>
+                <table>
+                    <tr>
+                        <td>
+                            <el-tag>职称名</el-tag>
+                        </td>
+                        <td>
+                            <el-input size="small" v-model="updateJl.name"></el-input>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <el-tag>职称级别</el-tag>
+                        </td>
+                        <td>
+                            <el-select v-model="updateJl.titlelevel" placeholder="职称等级" size="small"
+                                       style="margin-left: 5px;margin-right: 5px">
+                                <el-option
+                                        v-for="item in titleLevels"
+                                        :key="item"
+                                        :label="item"
+                                        :value="item">
+                                </el-option>
+                            </el-select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <el-tag>是否启用</el-tag>
+                        </td>
+                        <td>
+                            <el-switch
+                                    v-model="updateJl.enabled"
+                                    active-text="启用"
+                                    inactive-text="禁用">
+                            </el-switch>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+                <el-button size="small" type="primary" @click="doUpdate">确 定</el-button>
+            </span>
+        </el-dialog>      
     </div>
 </template>
 
@@ -72,9 +123,16 @@
         name: "JobLevelMana",
         data(){
             return{
+                dialogVisible: false,
+                multipleSelection: [],
+                updateJl: {
+                    name: '',
+                    titlelevel: '',
+                    enabled: false
+                },
                 jl: {
                     name: '',
-                    titleLevel: ''
+                    titlelevel: ''
                 },
                 jls:[],
                 titleLevels: [
@@ -90,12 +148,73 @@
             this.initJls();
         },
         methods:{
-            addJoblevel(){
-                this.postRequest("/system/basic/job/",this.jl).then((resp)=>{
-                    if(resp){
+            deleteMany() {
+                this.$confirm('此操作将永久删除【' + this.multipleSelection.length + '】条记录, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let ids = '?';
+                    this.multipleSelection.forEach(item => {
+                        ids += 'ids=' + item.id + '&';
+                    })
+                    this.deleteRequest("/system/basic/job/" + ids).then(resp => {
+                        if (resp) {
+                            this.initJls();
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            handleSelectionChange(val){
+                this.multipleSelection = val;
+            },
+            doUpdate(){
+                this.putRequest("/system/basic/job/",this.updateJl).then((result) => {
+                    if(result){
                         this.initJls();
+                        this.dialogVisible = false;
                     }
-                })
+                }).catch((err) => {
+                    
+                });
+            },
+            showEditView(data){
+                Object.assign(this.updateJl, data);
+                this.dialogVisible = true;
+            },
+            deleteHandler(data){
+                this.$confirm('此操作将永久【' + data.name + '】职称, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.deleteRequest("/system/basic/job/" + data.id).then(resp => {
+                        if (resp) {
+                            this.initJls();
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            addJoblevel(){
+                if (this.jl.name && this.jl.titlelevel) {
+                    this.postRequest("/system/basic/job/", this.jl).then(resp => {
+                        if (resp) {
+                            this.initJls();
+                        }
+                    });
+                } else {
+                    this.$message.error("添加字段不可以为空!");
+                }
             },
             initJls(){
                 this.getRequest("/system/basic/job/").then((resp) => {
