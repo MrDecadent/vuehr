@@ -69,8 +69,17 @@
             :visible.sync="dialogVisible"
             width="30%">
             <div>
-                <el-tag>职位名称</el-tag>
-                <el-input class="updatePosInput" size="small" v-model="updatePos.name"></el-input>
+                <div>
+                    <el-tag>职位名称</el-tag>
+                    <el-input class="updatePosInput" size="small" v-model="updatePos.name"></el-input>
+                </div>
+                <div>
+                    <el-switch
+                        v-model="updatePos.enable"
+                        active-text="启用"
+                        inactive-text="禁用">
+                    </el-switch>
+                </div>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取消</el-button>
@@ -96,7 +105,8 @@ import { getRequest } from "@/utils/api"
                 },
                 dialogVisible: false,
                 updatePos:{
-                    name:''
+                    name:'',
+                    enable:false
                 },
                 multipleSelection:[],
                 positions: []
