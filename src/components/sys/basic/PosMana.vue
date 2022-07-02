@@ -41,8 +41,8 @@
                 <el-table-column
                         label="是否启用">
                     <template slot-scope="scope">
-                        <el-tag type="success" v-if="scope.row.enabled">已启用</el-tag>
-                        <el-tag type="danger" v-else>未启用</el-tag>
+                        <el-tag size="small" type="success" v-if="scope.row.enabled">已启用</el-tag>
+                        <el-tag size="small" type="danger" v-else>未启用</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -74,10 +74,11 @@
                     <el-input class="updatePosInput" size="small" v-model="updatePos.name"></el-input>
                 </div>
                 <div>
+                    <el-tag>是否启用</el-tag>
                     <el-switch
-                        v-model="updatePos.enable"
-                        active-text="启用"
-                        inactive-text="禁用">
+                            v-model="updatePos.enabled"
+                            active-text="启用"
+                            inactive-text="禁用">
                     </el-switch>
                 </div>
             </div>
@@ -106,7 +107,7 @@ import { getRequest } from "@/utils/api"
                 dialogVisible: false,
                 updatePos:{
                     name:'',
-                    enable:false
+                    enabled: false
                 },
                 multipleSelection:[],
                 positions: []
