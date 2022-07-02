@@ -4,24 +4,26 @@
             <el-input size="small" placeholder="请输入角色英文名" v-model="role.name">
                 <template slot="prepend">ROLE_</template>
             </el-input>
-            <el-input size="small" placeholder="请输入角色中文名" v-model="role.nameZh">
+            <el-input size="small" placeholder="请输入角色中文名" v-model="role.namezh">
             </el-input>
             <el-button type="primary" size="small" icon="el-icon-plus">添加角色</el-button>
         </div>
         <div class="permissManaMain">
-            <el-collapse v-model="activeName"
-                         accordion>
-                <el-collapse-item title="一致性" name="1">
-                    <div>测试内容1</div>
-                    <div>内容1</div>
-                </el-collapse-item>
-                <el-collapse-item title="反馈" name="2">
-                    <div>测试内容2</div>
-                    <div>内容2</div>
-                </el-collapse-item>
-                <el-collapse-item title="效率" name="3">
-                    <div>测试内容3</div>
-                    <div>内容3</div>
+            <el-collapse accordion>
+                <el-collapse-item :title="r.namezh" :name="r.id" v-for="(r,index) in roles" :key="index">
+                    <el-card class="box-card">
+                        <div slot="header" class="clearfix">
+                            <span>可访问的资源</span>
+                            <el-button style="float: right; padding: 3px 0;color: #ff0000;" icon="el-icon-delete"
+                                       type="text" @click="deleteRole(r)"></el-button>
+                        </div>
+                        <div>
+                            <div style="display: flex;justify-content: flex-end">
+                                <el-button @click="cancelUpdate">取消修改</el-button>
+                                <el-button type="primary" @click="doUpdate(r.id,index)">确认修改</el-button>
+                            </div>
+                        </div>
+                    </el-card>
                 </el-collapse-item>
             </el-collapse>
         </div>
@@ -35,8 +37,23 @@
             return{
                 role:{
                     name:'',
-                    nameZh:''
-                }
+                    namezh:''
+                },
+                roles: [],
+            }
+        },
+        mounted(){
+            this.initRoles();
+        },
+        methods:{
+            initRoles(){
+                this.getRequest("/system/basic/permission/").then(result => {
+                    if(result){
+                        this.roles = result
+                    }
+                }).catch((err) => {
+                    
+                });
             }
         }
     }
