@@ -4,9 +4,10 @@
             <el-input size="small" placeholder="请输入角色英文名" v-model="role.name">
                 <template slot="prepend">ROLE_</template>
             </el-input>
-            <el-input size="small" placeholder="请输入角色中文名" v-model="role.namezh">
+            <el-input size="small" placeholder="请输入角色中文名" v-model="role.namezh"
+                @keydown.enter.native="doAddRole">
             </el-input>
-            <el-button type="primary" size="small" icon="el-icon-plus">添加角色</el-button>
+            <el-button type="primary" size="small" icon="el-icon-plus" @click="doAddRole">添加角色</el-button>
         </div>
         <div class="permissManaMain">
             <el-collapse v-model="activeName"
@@ -24,6 +25,7 @@
                                     show-checkbox
                                     node-key="id"
                                     ref="tree"
+                                    :key="index"
                                     :default-checked-keys="selectedMenus"
                                     :data="allmenus" :props="defaultProps"></el-tree>
                             <div style="display: flex;justify-content: flex-end">
@@ -65,6 +67,38 @@
                 if(rid){
                     this.initAllmenus();
                     this.initSelectedMenus(rid);
+                }
+            },
+            deleteRole(role) {
+                this.$confirm('此操作将永久删除【' + role.namezh + '】角色, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.deleteRequest("/system/basic/permission/" + role.id).then(resp => {
+                        if (resp) {
+                            this.initRoles();
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            doAddRole(){
+                if (this.role.name && this.role.namezh) {
+                    this.globalLoading = true;
+                    this.postRequest("/system/basic/permission/",this.role).then(resp =>{
+                    if(resp){
+                        this.role.name = "";
+                        this.role.namezh = "";
+                        this.initRoles();
+                    }
+                })
+                } else {
+                    this.$message.error('数据不可以为空');
                 }
             },
             cancelUpdate() {
