@@ -9,7 +9,9 @@
             <el-button type="primary" size="small" icon="el-icon-plus">添加角色</el-button>
         </div>
         <div class="permissManaMain">
-            <el-collapse accordion>
+            <el-collapse v-model="activeName"
+                         accordion 
+                         @change="change">
                 <el-collapse-item :title="r.namezh" :name="r.id" v-for="(r,index) in roles" :key="index">
                     <el-card class="box-card">
                         <div slot="header" class="clearfix">
@@ -18,9 +20,15 @@
                                        type="text" @click="deleteRole(r)"></el-button>
                         </div>
                         <div>
+                             <el-tree
+                                    show-checkbox
+                                    node-key="id"
+                                    ref="tree"
+                                    :default-checked-keys="selectedMenus"
+                                    :data="allmenus" :props="defaultProps"></el-tree>
                             <div style="display: flex;justify-content: flex-end">
-                                <el-button @click="cancelUpdate">取消修改</el-button>
-                                <el-button type="primary" @click="doUpdate(r.id,index)">确认修改</el-button>
+                                <el-button size="small" @click="cancelUpdate">取消修改</el-button>
+                                <el-button size="small" type="primary" @click="doUpdate(r.id,index)">确认修改</el-button>
                             </div>
                         </div>
                     </el-card>
@@ -39,13 +47,60 @@
                     name:'',
                     namezh:''
                 },
+                allmenus:[],
+                activeName: -1,
+                selectedMenus: [],
                 roles: [],
+                defaultProps: {
+                    children: 'children',
+                    label: 'name'
+                }
             }
         },
         mounted(){
             this.initRoles();
         },
         methods:{
+            change(rid){
+                if(rid){
+                    this.initAllmenus();
+                    this.initSelectedMenus(rid);
+                }
+            },
+            cancelUpdate() {
+                this.activeName = -1;
+            },
+            doUpdate(rid,index){
+                let tree = this.$refs.tree[index];
+                let selectedKeys = tree.getCheckedKeys(true);
+                let url = '/system/basic/permission/?rid=' + rid;
+                selectedKeys.forEach(key => {
+                    url += '&mids=' + key;
+                })
+                this.putRequest(url).then(resp => {
+                    if (resp) {
+                        this.activeName = -1;
+                    }
+                })
+            },
+            initSelectedMenus(rid){
+                this.getRequest("/system/basic/permission/mids/"+rid).then(result => {
+                    if(result){
+                        this.selectedMenus = result
+                    }
+                }).catch((err) => {
+                    
+                });
+            },
+            initAllmenus(){
+                this.getRequest("/system/basic/permission/menus").then(result => {
+                    if(result){
+                        this.allmenus = result
+                    }
+                }).catch((err) => {
+                    
+                });
+            },
             initRoles(){
                 this.getRequest("/system/basic/permission/").then(result => {
                     if(result){
