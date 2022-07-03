@@ -113,11 +113,11 @@
                 }
             },
             doAddDep(){
-                console.log(this.dep);
                 this.postRequest("/system/basic/department/", this.dep).then(resp => {
                     if (resp) {
+                        console.log(resp.obj);
                         //把添加的部门结果放进deps里
-                        this.addDep2Deps(this.deps, resp.obj);
+                        this.addDep2Deps(this.deps, resp.object);
                         this.dialogVisible = false;
                         //初始化变量
                         this.initDep();
