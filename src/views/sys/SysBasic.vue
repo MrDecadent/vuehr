@@ -21,7 +21,7 @@
         name: "SysBasic",
         data(){
             return{
-                activeName:'permissmana'
+                activeName:'depmana'
             }
         },components:{
             // 'DepMana':DepMana KV相同可以简写
