@@ -125,6 +125,7 @@
             return{
                 dialogVisible: false,
                 multipleSelection: [],
+                loading: false,
                 updateJl: {
                     name: '',
                     titlelevel: '',
