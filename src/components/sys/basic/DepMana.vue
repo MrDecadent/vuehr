@@ -34,6 +34,33 @@
                 </span>
              </span>
         </el-tree>
+        <el-dialog
+                title="添加部门"
+                :visible.sync="dialogVisible"
+                width="30%">
+            <div>
+                <table>
+                    <tr>
+                        <td>
+                            <el-tag>上级部门</el-tag>
+                        </td>
+                        <td>{{pname}}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <el-tag>部门名称</el-tag>
+                        </td>
+                        <td>
+                            <el-input v-model="dep.name" placeholder="请输入部门名称..."></el-input>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="doAddDep">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -42,8 +69,14 @@
         name: "DepMana",
         data(){
             return{
+                dialogVisible: false,
                 filterText:'',
                 deps:[],
+                dep:{
+                    name:'',
+                    parentid: -1
+                },
+                pname:'',
                 defaultProps: {
                     children: 'children',
                     label: 'name'
@@ -61,8 +94,40 @@
             this.initDeps();
         },
         methods:{
+            initDep() {
+                this.dep = {
+                    name: '',
+                    parentid: -1
+                }
+                this.pname = '';
+            },
+            addDep2Deps(deps,dep){
+                for(let i=0; i<deps.length ; i++){
+                    let d = deps[i];
+                    if(d.id == dep.parentid){
+                        d.children = d.children.concat(dep);
+                        return;
+                    }else{
+                        this.addDep2Deps(d.children,dep);
+                    }
+                }
+            },
+            doAddDep(){
+                console.log(this.dep);
+                this.postRequest("/system/basic/department/", this.dep).then(resp => {
+                    if (resp) {
+                        //把添加的部门结果放进deps里
+                        this.addDep2Deps(this.deps, resp.obj);
+                        this.dialogVisible = false;
+                        //初始化变量
+                        this.initDep();
+                    }
+                })
+            },
             showAddDepView(data){
-                console.log(data);
+                this.pname = data.name;
+                this.dep.parentid = data.id;
+                this.dialogVisible = true;
             },
             deleteDep(data){
                 console.log(data);
