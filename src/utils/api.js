@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
+import route from '../router'
 
 axios.interceptors.response.use(success=>{
     //success.status是浏览器相应上面的状态码
@@ -19,6 +20,8 @@ axios.interceptors.response.use(success=>{
         Message.error({message:'权限不足，请联系管理员'})
     }else if(error.response.status == 401){
         Message.error({message:'尚未登陆，请登录'})
+        // 回到登录页
+        route.replace('/');
     }else{
         if(error.response.msg != null){
             Message.error({message:error.response.data.msg})
