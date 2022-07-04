@@ -51,7 +51,8 @@
                             <el-tag>部门名称</el-tag>
                         </td>
                         <td>
-                            <el-input v-model="dep.name" placeholder="请输入部门名称..."></el-input>
+                            <el-input v-model="dep.name" placeholder="请输入部门名称..." 
+                                    @keydown.enter.native="doAddDep"></el-input>
                         </td>
                     </tr>
                 </table>
@@ -129,8 +130,41 @@
                 this.dep.parentid = data.id;
                 this.dialogVisible = true;
             },
+            removeDepFromDeps(p,deps, id) {
+                for(let i=0;i<deps.length;i++){
+                    let d = deps[i];
+                    if (d.id == id) {
+                        deps.splice(i, 1);
+                        if (deps.length == 0) {
+                            p.parent = false;
+                        }
+                        return;
+                    }else{
+                        this.removeDepFromDeps(d,d.children, id);
+                    }
+                }
+            },
             deleteDep(data){
-                console.log(data);
+                if (data.isparent) {
+                    this.$message.error("无法删除父部门");
+                } else {
+                    this.$confirm('此操作将永久删除【' + data.name + '】部门, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                       this.deleteRequest("/system/basic/department/"+data.id).then(resp=>{
+                           if (resp) {
+                               this.removeDepFromDeps(null,this.deps,data.id);
+                           }
+                       })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                }
             },
             initDeps() {
                 this.getRequest("/system/basic/department/").then(resp => {
