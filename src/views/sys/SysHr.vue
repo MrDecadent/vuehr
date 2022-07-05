@@ -28,7 +28,8 @@
                                 active-text="启用"
                                 inactive-text="禁用"
                                 active-color="#13ce66"
-                                inactive-color="#ff4949">
+                                inactive-color="#ff4949"
+                                @change="enabledChange(hr)">
                             </el-switch>
                         </div>
                         <div>
@@ -36,7 +37,7 @@
                             <el-tag style="margin-right:4px" 
                                     type="success" 
                                     v-for="(role,index) in hr.roles" 
-                                    :key="indexj">
+                                    :key="index">
                                 {{role.namezh}}
                             </el-tag>
                             <el-button slot="reference" icon="el-icon-more" type="text"></el-button>
@@ -63,6 +64,15 @@
             this.initHrs();
         },
         methods:{
+            enabledChange(hr){
+                //避免将数组传过去
+                delete hr.roles;
+                this.putRequest("/system/hr/",hr).then(result =>{
+                    if(result){
+                        this.initHrs();
+                    }
+                })
+            },
             initHrs(){
                 this.getRequest("/system/hr/").then(result => {
                     if(result){
