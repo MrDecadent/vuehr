@@ -40,7 +40,23 @@
                                     :key="index">
                                 {{role.namezh}}
                             </el-tag>
-                            <el-button slot="reference" icon="el-icon-more" type="text"></el-button>
+                            <el-popover
+                                    placement="right"
+                                    title="角色列表"
+                                    @show="showPop(hr)"
+                                    @hide="hidePop(hr)"
+                                    width="200"
+                                    trigger="click">
+                                <el-select v-model="selectedRoles" multiple placeholder="请选择">
+                                    <el-option
+                                            v-for="(r,indexk) in allroles"
+                                            :key="indexk"
+                                            :label="r.namezh"
+                                            :value="r.id">
+                                    </el-option>
+                                </el-select>
+                                <el-button slot="reference" icon="el-icon-more" type="text"></el-button>
+                            </el-popover>
                         </div>
                         <div>备注:{{hr.remark}}</div>
                     </div>
@@ -57,13 +73,65 @@
         data(){
             return{
                 keywords:'',
-                hrs: []
+                hrs: [],
+                allroles:[],
+                selectedRoles:[]
             }
         },
         mounted(){
             this.initHrs();
         },
         methods:{
+            hidePop(hr){
+                let roles = [];
+                Object.assign(roles, hr.roles);
+                let flag = false;
+                if (roles.length != this.selectedRoles.length) {
+                    flag = true;
+                } else {
+                    for (let i = 0; i < roles.length; i++) {
+                        let role = roles[i];
+                        for (let j = 0; j < this.selectedRoles.length; j++) {
+                            let sr = this.selectedRoles[j];
+                            if (role.id == sr) {
+                                roles.splice(i, 1);
+                                i--;
+                                break;
+                            }
+                        }
+                    }
+                    if (roles.length != 0) {
+                        flag = true;
+                    }
+                }
+                if (flag) {
+                    let url = '/system/hr/allRoles?hid=' + hr.id;
+                    this.selectedRoles.forEach(sr => {
+                        url+='&rids=' + sr;
+                    })
+                    this.putRequest(url).then(result => {
+                        if(result){
+                            this.initHrs();
+                        }
+                    })
+                }
+            },
+            showPop(hr){
+                this.initAllRoles();
+                let roles = hr.roles;
+                //避免历史数据存留
+                this.selectedRoles = [];
+                roles.forEach(element => {
+                    this.selectedRoles.push(element.id);
+                });
+            },
+            initAllRoles(){
+                this.getRequest("/system/hr/allRoles").then(result => {
+                    if(result){
+                        this.allroles = result;
+                    }
+                })
+            },
             enabledChange(hr){
                 //避免将数组传过去
                 delete hr.roles;
