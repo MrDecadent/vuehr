@@ -123,6 +123,7 @@
         name: "JobLevelMana",
         data(){
             return{
+                loading:false,
                 dialogVisible: false,
                 multipleSelection: [],
                 loading: false,
@@ -218,7 +219,9 @@
                 }
             },
             initJls(){
+                this.loading = true;
                 this.getRequest("/system/basic/job/").then((resp) => {
+                    this.loading = false;
                     if(resp){
                         this.jls = resp;
                     }

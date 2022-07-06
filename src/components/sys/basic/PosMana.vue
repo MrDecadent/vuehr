@@ -17,6 +17,10 @@
                 @selection-change="handleSelectionChange"
                 border
                 stripe
+                v-loading="loading"
+                element-loading-text="正在加载..."
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="rgba(0, 0, 0, 0.8)"
                 size="small"
                 style="width: 70%">
                 <el-table-column
@@ -101,6 +105,7 @@ import { getRequest } from "@/utils/api"
         name: "PosMana",
         data(){
             return{
+                loading:false,
                 pos:{
                     name:''
                 },
@@ -188,7 +193,9 @@ import { getRequest } from "@/utils/api"
                 }
             },
             initPositions(){
+                this.loading = true;
                 this.getRequest("/system/basic/pos/").then(resp => {
+                    this.loading = false;
                     if (resp) {
                         this.positions = resp;
                     }

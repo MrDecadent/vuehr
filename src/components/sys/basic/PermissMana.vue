@@ -1,5 +1,9 @@
 <template>
-    <div>
+    <div
+        v-loading="globalLoading"
+        element-loading-text="正在加载..."
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)">
         <div class="permissManaTool">
             <el-input size="small" placeholder="请输入角色英文名" v-model="role.name">
                 <template slot="prepend">ROLE_</template>
@@ -12,7 +16,11 @@
         <div class="permissManaMain">
             <el-collapse v-model="activeName"
                          accordion 
-                         @change="change">
+                         @change="change"
+                         v-loading="loading"
+                        element-loading-text="正在加载..."
+                        element-loading-spinner="el-icon-loading"
+                        element-loading-background="rgba(0, 0, 0, 0.8)">
                 <el-collapse-item :title="r.namezh" :name="r.id" v-for="(r,index) in roles" :key="index">
                     <el-card class="box-card">
                         <div slot="header" class="clearfix">
@@ -45,6 +53,8 @@
         name: "PermissMana",
         data(){
             return{
+                globalLoading:false,
+                loading:false,
                 role:{
                     name:'',
                     namezh:''
@@ -91,10 +101,11 @@
                 if (this.role.name && this.role.namezh) {
                     this.globalLoading = true;
                     this.postRequest("/system/basic/permission/",this.role).then(resp =>{
-                    if(resp){
-                        this.role.name = "";
-                        this.role.namezh = "";
-                        this.initRoles();
+                        this.globalLoading = false;
+                        if(resp){
+                            this.role.name = "";
+                            this.role.namezh = "";
+                            this.initRoles();
                     }
                 })
                 } else {
@@ -136,7 +147,9 @@
                 });
             },
             initRoles(){
+                this.loading = true;
                 this.getRequest("/system/basic/permission/").then(result => {
+                    this.loading = false;
                     if(result){
                         this.roles = result
                     }

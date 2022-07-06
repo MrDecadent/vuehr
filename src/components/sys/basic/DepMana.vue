@@ -8,6 +8,10 @@
         </el-input>
 
         <el-tree
+                v-loading="loading"
+                element-loading-text="正在加载..."
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="rgba(0, 0, 0, 0.8)"
                 :data="deps"
                 :props="defaultProps"
                 :expand-on-click-node="false"
@@ -70,6 +74,7 @@
         name: "DepMana",
         data(){
             return{
+                loading:false,
                 dialogVisible: false,
                 filterText:'',
                 deps:[],
@@ -167,7 +172,9 @@
                 }
             },
             initDeps() {
+                this.loading = true;
                 this.getRequest("/system/basic/department/").then(resp => {
+                    this.loading = false;
                     if (resp) {
                         this.deps = resp;
                     }
