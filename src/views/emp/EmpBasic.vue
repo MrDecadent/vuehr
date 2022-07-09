@@ -3,8 +3,12 @@
         <div style="display: flex;justify-content: space-between">
             <div>
                 <el-input placeholder="请输入员工名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
+                          clearable
+                          @clear="initEmps"
                           size="small"
                           style="width: 350px;margin-right: 10px"
+                          v-model="keywords"
+                          @keydown.enter.native="initEmps"
                           clearable>
                 </el-input>
                 <el-button icon="el-icon-search" type="primary" size="small">
@@ -223,6 +227,7 @@
                 total:0,
                 page:1,
                 size:10,
+                keywords:'',
             }
         },
         mounted(){
@@ -240,7 +245,8 @@
             initEmps(){
                 this.loading = true;
                 console.log(this.page,this.size);
-                this.getRequest("/emp/basic/?page="+this.page+"&size="+this.size).then(result => {
+                this.getRequest("/emp/basic/?page="+this.page+"&size="+this.size+"&keywords="+this.keywords)
+                    .then(result => {
                     if(result){
                         this.loading = false;
                         //result里面是封装了data和total的，所以不能直接=result
