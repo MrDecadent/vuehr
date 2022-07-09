@@ -199,6 +199,16 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <div style="display: flex;justify-content: flex-end">
+                <el-pagination
+                    :page-size="10"
+                    :pager-count="6"
+                    @current-change="currentChange"
+                    @size-change="sizeChange"
+                    layout="sizes, prev, pager, next, jumper, ->, total, slot"
+                    :total="total">
+                </el-pagination>
+            </div>
         </div>
     </div>
 </template>
@@ -210,19 +220,32 @@
             return{
                 emps:[],
                 loading:false,
+                total:0,
+                page:1,
+                size:10,
             }
         },
         mounted(){
             this.initEmps();
         },
         methods:{
+            currentChange(currentPage){
+                this.page = currentPage;
+                this.initEmps();
+            },
+            sizeChange(currentSize){
+                this.size = currentSize;
+                this.initEmps();
+            },
             initEmps(){
                 this.loading = true;
-                this.getRequest("/emp/basic/").then(result => {
+                console.log(this.page,this.size);
+                this.getRequest("/emp/basic/?page="+this.page+"&size="+this.size).then(result => {
                     if(result){
                         this.loading = false;
                         //result里面是封装了data和total的，所以不能直接=result
                         this.emps = result.data;
+                        this.total = result.total;
                     }
                 });
             }
