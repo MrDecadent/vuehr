@@ -22,7 +22,7 @@ Vue.prototype.putRequest = putRequest;
 
 Vue.config.productionTip = false
 
-Vue.use(ElementUI);
+Vue.use(ElementUI,{ size: 'small'});
 
 // from从哪来，to到哪去，next()执行
 router.beforeEach((to,from,next) => {
