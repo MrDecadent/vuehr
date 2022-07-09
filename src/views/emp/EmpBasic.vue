@@ -504,9 +504,18 @@
             this.initPositions();
         },
         methods:{
+            getMaxWordID(){
+                this.getRequest("/emp/basic/MaxWorkId").then(result => {
+                    if(result){
+                        this.emp.workid = result.object;
+                    }
+                });
+            },
             initPositions(){
                 this.getRequest("/emp/basic/positions").then(result => {
-                  this.positions = result;  
+                    if(result){
+                        this.positions = result;
+                    }
                 });
             },
             initData(){
@@ -538,6 +547,7 @@
             },
             showAddEmpView(){
                 this.dialogVisible = true;
+                this.getMaxWordID();
             },
             currentChange(currentPage){
                 this.page = currentPage;
