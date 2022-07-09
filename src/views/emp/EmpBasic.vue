@@ -294,8 +294,8 @@
                     </el-row>
                     <el-row>
                         <el-col :span="6">
-                            <el-form-item label="职位:" prop="posId">
-                                <el-select v-model="emp.posId" placeholder="职位" size="mini" style="width: 150px;">
+                            <el-form-item label="职位:" prop="posid">
+                                <el-select v-model="emp.posid" placeholder="职位" size="mini" style="width: 150px;">
                                     <el-option
                                             v-for="item in positions"
                                             :key="item.id"
@@ -306,8 +306,8 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="5">
-                            <el-form-item label="职称:" prop="jobLevelId">
-                                <el-select v-model="emp.jobLevelId" placeholder="职称" size="mini" style="width: 150px;">
+                            <el-form-item label="职称:" prop="jobLevelid">
+                                <el-select v-model="emp.joblevelid" placeholder="职称" size="mini" style="width: 150px;">
                                     <el-option
                                             v-for="item in joblevels"
                                             :key="item.id"
@@ -490,30 +490,52 @@
                     endcontract: "2020-01-01",
                     workage: null
                 },
-                politicsstatus: [{
-                    value: '选项1',
-                    name: '黄金糕'
-                }, {
-                    value: '选项2',
-                    name: '双皮奶'
-                }, {
-                    value: '选项3',
-                    name: '蚵仔煎'
-                }, {
-                    value: '选项4',
-                    name: '龙须面'
-                }, {
-                    value: '选项5',
-                    name: '北京烤鸭'
-                }],
+                politicsstatus: [],
                 nations:[],
+                joblevels:[],
                 tiptopdegree:[],
+                positions:[],
+                tiptopdegrees: ['本科', '大专', '硕士', '博士', '高中', '初中', '小学', '其他'],
             }
         },
         mounted(){
             this.initEmps();
+            this.initData();
+            this.initPositions();
         },
         methods:{
+            initPositions(){
+                this.getRequest("/emp/basic/positions").then(result => {
+                  this.positions = result;  
+                });
+            },
+            initData(){
+                if (!window.sessionStorage.getItem("nations")){
+                    this.getRequest("/emp/basic/nations").then(result => {
+                        if(result){
+                            this.nations = result;
+                            window.sessionStorage.setItem("nations", JSON.stringify(resp));
+                        }
+                    })
+                }
+                if (!window.sessionStorage.getItem("politicsstatus")){
+                    this.getRequest("/emp/basic/politic").then(result => {
+                        if(result){
+                            this.politicsstatus = result;
+                            window.sessionStorage.setItem("politicsstatus", JSON.stringify(resp));
+                        }
+                    })
+                }
+                if (!window.sessionStorage.getItem("joblevels")){
+                    this.getRequest("/emp/basic/jobLevels").then(result => {
+                        if(result){
+                            this.joblevels = result;
+                            window.sessionStorage.setItem("joblevels", JSON.stringify(resp));
+                        }
+                    })
+                }
+                
+            },
             showAddEmpView(){
                 this.dialogVisible = true;
             },
@@ -527,7 +549,6 @@
             },
             initEmps(){
                 this.loading = true;
-                console.log(this.page,this.size);
                 this.getRequest("/emp/basic/?page="+this.page+"&size="+this.size+"&keywords="+this.keywords)
                     .then(result => {
                     if(result){
