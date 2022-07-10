@@ -39,6 +39,10 @@
              </span>
         </el-tree>
         <el-dialog
+                v-loading="addLoading"
+                element-loading-text="正在加载..."
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="rgba(0, 0, 0, 0.8)"
                 title="添加部门"
                 :visible.sync="dialogVisible"
                 width="30%">
@@ -74,6 +78,7 @@
         name: "DepMana",
         data(){
             return{
+                addLoading:false,
                 loading:false,
                 dialogVisible: false,
                 filterText:'',
@@ -119,9 +124,10 @@
                 }
             },
             doAddDep(){
+                this.addLoading = true;
                 this.postRequest("/system/basic/department/", this.dep).then(resp => {
                     if (resp) {
-                        console.log(resp.obj);
+                        this.addLoading = false;
                         //把添加的部门结果放进deps里
                         this.addDep2Deps(this.deps, resp.object);
                         this.dialogVisible = false;
@@ -152,13 +158,16 @@
             deleteDep(data){
                 if (data.isparent) {
                     this.$message.error("无法删除父部门");
+                    this.loading = false;
                 } else {
                     this.$confirm('此操作将永久删除【' + data.name + '】部门, 是否继续?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
+                       this.loading = true;
                        this.deleteRequest("/system/basic/department/"+data.id).then(resp=>{
+                            this.loading = false;
                            if (resp) {
                                this.removeDepFromDeps(null,this.deps,data.id);
                            }
