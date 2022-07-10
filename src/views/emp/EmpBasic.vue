@@ -199,7 +199,7 @@
                     <template slot-scope="scope">
                         <el-button style="padding: 3px" size="mini">编辑</el-button>
                         <el-button style="padding: 3px" size="mini" type="primary">查看高级资料</el-button>
-                        <el-button style="padding: 3px" size="mini" type="danger">删除</el-button>
+                        <el-button @click="deleteEmp(scope.row)" style="padding: 3px" size="mini" type="danger">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -563,6 +563,25 @@
             this.initPositions();
         },
         methods:{
+            deleteEmp(data){
+                this.$confirm('此操作将永久删除【' + data.name + '】, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.deleteRequest("/emp/basic/"+data.id).then(result => {
+                        if(result){
+                            this.initEmps();
+                        }
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+                
+            },
             doAddEmp(){
                 this.$refs['empForm'].validate(valid=>{
                     if(valid){
