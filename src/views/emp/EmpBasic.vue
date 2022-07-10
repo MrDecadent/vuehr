@@ -319,8 +319,22 @@
                         </el-col>
                         <el-col :span="6">
                             <el-form-item label="所属部门:" prop="departmentid">
-                                <el-input size="mini" style="width: 150px" prefix-icon="el-icon-phone"
-                                          v-model="emp.departmentid" placeholder="所属部门"></el-input>
+                                <!-- <el-input size="mini" style="width: 150px" prefix-icon="el-icon-phone"
+                                          v-model="emp.departmentid" placeholder="所属部门"></el-input> -->
+                                <el-popover
+                                    placement="right"
+                                    title="请选择部门"
+                                    width="200"
+                                    trigger="manual"
+                                    v-model="popVisible">
+                                    <el-tree default-expand-all :data="allDeps" :props="defaultProps" :expand-on-click-node="false"
+                                             @node-click="handleNodeClick"></el-tree>
+                                    <div style="width: 150px;display: inline-flex;font-size: 13px;border: 1px solid #dedede;height: 26px;border-radius: 5px;cursor: pointer;align-items: center;padding-left: 8px;box-sizing: border-box"
+                                        @click="showDepView"
+                                        slot="reference">
+                                        {{inputDepName}}
+                                    </div>
+                                </el-popover>
                             </el-form-item>
                         </el-col>
                         <el-col :span="7">
@@ -465,7 +479,7 @@
                     name: "MrDecadent",
                     gender: "男",
                     idcard: "610122199001011256",
-                    birthday: "1990-04-018",
+                    birthday: "1990-04-18",
                     wedlock: "未婚",
                     nationid: 1,
                     nativeplace: "广东",
@@ -496,6 +510,13 @@
                 tiptopdegree:[],
                 positions:[],
                 tiptopdegrees: ['本科', '大专', '硕士', '博士', '高中', '初中', '小学', '其他'],
+                popVisible:false,
+                allDeps:[],
+                defaultProps: {
+                    children: 'children',
+                    label: 'name'
+                },
+                inputDepName:'',
             }
         },
         mounted(){
@@ -504,6 +525,23 @@
             this.initPositions();
         },
         methods:{
+            doAddEmp(){
+                this.postRequest("/emp/basic/",this.emp).then(result => {
+                    console.log(this.emp);
+                    if(result){
+                        this.dialogVisible = false;
+                        this.initEmps();
+                    }
+                });
+            },
+            handleNodeClick(data){
+                this.inputDepName = data.name;
+                this.emp.departmentid = data.id;
+                this.popVisible = !this.popVisible;
+            },
+            showDepView(){
+                this.popVisible = !this.popVisible;
+            },
             getMaxWordID(){
                 this.getRequest("/emp/basic/MaxWorkId").then(result => {
                     if(result){
@@ -523,27 +561,42 @@
                     this.getRequest("/emp/basic/nations").then(result => {
                         if(result){
                             this.nations = result;
-                            window.sessionStorage.setItem("nations", JSON.stringify(resp));
+                            window.sessionStorage.setItem("nations", JSON.stringify(result));
                         }
                     })
+                }else {
+                    this.nations = JSON.parse(window.sessionStorage.getItem("nations"));
                 }
                 if (!window.sessionStorage.getItem("politicsstatus")){
                     this.getRequest("/emp/basic/politic").then(result => {
                         if(result){
                             this.politicsstatus = result;
-                            window.sessionStorage.setItem("politicsstatus", JSON.stringify(resp));
+                            window.sessionStorage.setItem("politicsstatus", JSON.stringify(result));
                         }
                     })
+                }else {
+                    this.politicsstatus = JSON.parse(window.sessionStorage.getItem("politicsstatus"));
                 }
                 if (!window.sessionStorage.getItem("joblevels")){
                     this.getRequest("/emp/basic/jobLevels").then(result => {
                         if(result){
                             this.joblevels = result;
-                            window.sessionStorage.setItem("joblevels", JSON.stringify(resp));
+                            window.sessionStorage.setItem("joblevels", JSON.stringify(result));
                         }
                     })
+                }else {
+                    this.joblevels = JSON.parse(window.sessionStorage.getItem("joblevels"));
                 }
-                
+                if (!window.sessionStorage.getItem("deps")) {
+                    this.getRequest('/emp/basic/department').then(resp => {
+                        if (resp) {
+                            this.allDeps = resp;
+                            window.sessionStorage.setItem("deps", JSON.stringify(resp));
+                        }
+                    })
+                } else {
+                    this.allDeps = JSON.parse(window.sessionStorage.getItem("deps"));
+                }
             },
             showAddEmpView(){
                 this.dialogVisible = true;
