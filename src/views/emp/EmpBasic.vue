@@ -197,7 +197,7 @@
                         fixed="right"
                         width="200">
                     <template slot-scope="scope">
-                        <el-button style="padding: 3px" size="mini">编辑</el-button>
+                        <el-button @click="showEditEmpView(scope.row)" style="padding: 3px" size="mini">编辑</el-button>
                         <el-button style="padding: 3px" size="mini" type="primary">查看高级资料</el-button>
                         <el-button @click="deleteEmp(scope.row)" style="padding: 3px" size="mini" type="danger">删除</el-button>
                     </template>
@@ -215,7 +215,7 @@
             </div>
         </div>
         <el-dialog
-            title="添加员工"
+            :title="title"
             :visible.sync="dialogVisible"
             width="80%">
             <div>
@@ -468,6 +468,7 @@
         name: "EmpBasic",
         data(){
             return{
+                title:'',
                 dialogVisible: false,
                 emps:[],
                 loading:false,
@@ -563,6 +564,45 @@
             this.initPositions();
         },
         methods:{
+            emptyEmp(){
+                this.emp = {
+                    name: "",
+                    gender: "",
+                    idcard: "",
+                    birthday: "",
+                    wedlock: "",
+                    nationid: null,
+                    nativeplace: "",
+                    politicid: null,
+                    email: "",
+                    phone: "",
+                    address: "",
+                    departmentid: null,
+                    joblevelid: null,
+                    posid: null,
+                    engageform: "",
+                    tiptopdegree: "",
+                    specialty: "",
+                    school: "",
+                    begindate: "",
+                    workstate: "",
+                    workid: "",
+                    contractterm: null,
+                    conversiontime: "",
+                    notworkdate: null,
+                    begincontract: "",
+                    endcontract: "",
+                    workage: null
+                },
+                this.inputDepName = "";
+            },
+            showEditEmpView(data){
+                this.initPositions();
+                this.title = '编辑员工信息';
+                this.emp = data;
+                this.inputDepName = data.department.name;
+                this.dialogVisible = true;
+            },
             deleteEmp(data){
                 this.$confirm('此操作将永久删除【' + data.name + '】, 是否继续?', '提示', {
                     confirmButtonText: '确定',
@@ -583,17 +623,32 @@
                 
             },
             doAddEmp(){
-                this.$refs['empForm'].validate(valid=>{
-                    if(valid){
-                        this.postRequest("/emp/basic/",this.emp).then(result => {
-                            console.log(this.emp);
-                            if(result){
-                                this.dialogVisible = false;
-                                this.initEmps();
-                            }
-                        });
-                    }
-                })
+                if(this.emp.id){
+                    this.$refs['empForm'].validate(valid=>{
+                        if(valid){
+                            this.putRequest("/emp/basic/",this.emp).then(result => {
+                                console.log(this.emp);
+                                if(result){
+                                    this.dialogVisible = false;
+                                    this.initEmps();
+                                }
+                            });
+                        }
+                    })
+                }else{
+                    this.$refs['empForm'].validate(valid=>{
+                        if(valid){
+                            this.postRequest("/emp/basic/",this.emp).then(result => {
+                                console.log(this.emp);
+                                if(result){
+                                    this.dialogVisible = false;
+                                    this.initEmps();
+                                }
+                            });
+                        }
+                    })
+                }
+
             },
             handleNodeClick(data){
                 this.inputDepName = data.name;
@@ -660,6 +715,8 @@
                 }
             },
             showAddEmpView(){
+                this.emptyEmp();
+                this.title = '添加员工';
                 this.dialogVisible = true;
                 this.getMaxWordID();
             },
