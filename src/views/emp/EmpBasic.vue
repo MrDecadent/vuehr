@@ -10,12 +10,13 @@
                             style="width: 350px;margin-right: 10px"
                             v-model="keywords"
                             @keydown.enter.native="initEmps"
+                            :disabled="showAdvanceSearchView"
                             clearable>
                     </el-input>
-                    <el-button icon="el-icon-search" type="primary" size="small">
+                    <el-button icon="el-icon-search" type="primary" size="small" :disabled="showAdvanceSearchView">
                         搜索
                     </el-button>
-                    <el-button type="primary" size="small">
+                    <el-button type="primary" size="small"  @click="showAdvanceSearchView = !showAdvanceSearchView">
                         <i :class="showAdvanceSearchView?'fa fa-angle-double-up':'fa fa-angle-double-down'"
                             aria-hidden="true"></i>
                         高级搜索
@@ -854,5 +855,14 @@
 </script>
 
 <style scoped>
-
+    .slide-fade-enter-active {
+        transition: all .8s ease;
+    }
+    .slide-fade-leave-active {
+        transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    }
+    .slide-fade-enter, .slide-fade-leave-to
+        /* .slide-fade-leave-active for below version 2.1.8 */ {
+        opacity: 0;
+    }
 </style>
