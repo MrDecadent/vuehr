@@ -103,11 +103,11 @@
                                 trigger="manual"
                                 v-model="popVisible">
                                 <el-tree default-expand-all :data="allDeps" :props="defaultProps" :expand-on-click-node="false"
-                                            @node-click="handleNodeClick"></el-tree>
+                                            @node-click="SearchViewHandleNodeClick"></el-tree>
                                 <div style="width: 130px;display: inline-flex;font-size: 13px;border: 1px solid #dedede;height: 26px;border-radius: 5px;cursor: pointer;align-items: center;padding-left: 8px;box-sizing: border-box"
                                     @click="showDepView"
                                     slot="reference">
-                                    所属部门
+                                    {{inputDepName}}
                                 </div>
                             </el-popover>
                         </el-col>
@@ -626,7 +626,7 @@
                     children: 'children',
                     label: 'name'
                 },
-                inputDepName:'',
+                inputDepName:'所属部门',
                 rules:{
                     name:[{required: true,message: '请输入姓名' ,trigger: 'blur'}],
                     gender: [{required: true, message: '请输入性别', trigger: 'blur'}],
@@ -673,6 +673,10 @@
             this.initPositions();
         },
         methods:{
+            SearchViewHandleNodeClick(data){
+                this.inputDepName = data.name;
+                this.searchValue.departmentid = data.id;
+            },
             emptyEmp(){
                 this.emp = {
                     name: "",
@@ -719,7 +723,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.deleteRequest("/emp/basic/"+data.id).then(result => {
+                    this.deleteRequest("/employee/basic/"+data.id).then(result => {
                         if(result){
                             this.initEmps();
                         }
@@ -736,7 +740,7 @@
                 if(this.emp.id){
                     this.$refs['empForm'].validate(valid=>{
                         if(valid){
-                            this.putRequest("/emp/basic/",this.emp).then(result => {
+                            this.putRequest("/employee/basic/",this.emp).then(result => {
                                 console.log(this.emp);
                                 if(result){
                                     this.dialogVisible = false;
@@ -748,7 +752,7 @@
                 }else{
                     this.$refs['empForm'].validate(valid=>{
                         if(valid){
-                            this.postRequest("/emp/basic/",this.emp).then(result => {
+                            this.postRequest("/employee/basic/",this.emp).then(result => {
                                 console.log(this.emp);
                                 if(result){
                                     this.dialogVisible = false;
@@ -769,14 +773,14 @@
                 this.popVisible = !this.popVisible;
             },
             getMaxWordID(){
-                this.getRequest("/emp/basic/MaxWorkId").then(result => {
+                this.getRequest("/employee/basic/MaxWorkId").then(result => {
                     if(result){
                         this.emp.workid = result.object;
                     }
                 });
             },
             initPositions(){
-                this.getRequest("/emp/basic/positions").then(result => {
+                this.getRequest("/employee/basic/positions").then(result => {
                     if(result){
                         this.positions = result;
                     }
@@ -784,7 +788,7 @@
             },
             initData(){
                 if (!window.sessionStorage.getItem("nations")){
-                    this.getRequest("/emp/basic/nations").then(result => {
+                    this.getRequest("/employee/basic/nations").then(result => {
                         if(result){
                             this.nations = result;
                             window.sessionStorage.setItem("nations", JSON.stringify(result));
@@ -794,7 +798,7 @@
                     this.nations = JSON.parse(window.sessionStorage.getItem("nations"));
                 }
                 if (!window.sessionStorage.getItem("politicsstatus")){
-                    this.getRequest("/emp/basic/politic").then(result => {
+                    this.getRequest("/employee/basic/politic").then(result => {
                         if(result){
                             this.politicsstatus = result;
                             window.sessionStorage.setItem("politicsstatus", JSON.stringify(result));
@@ -804,7 +808,7 @@
                     this.politicsstatus = JSON.parse(window.sessionStorage.getItem("politicsstatus"));
                 }
                 if (!window.sessionStorage.getItem("joblevels")){
-                    this.getRequest("/emp/basic/jobLevels").then(result => {
+                    this.getRequest("/employee/basic/jobLevels").then(result => {
                         if(result){
                             this.joblevels = result;
                             window.sessionStorage.setItem("joblevels", JSON.stringify(result));
@@ -814,7 +818,7 @@
                     this.joblevels = JSON.parse(window.sessionStorage.getItem("joblevels"));
                 }
                 if (!window.sessionStorage.getItem("deps")) {
-                    this.getRequest('/emp/basic/department').then(resp => {
+                    this.getRequest('/employee/basic/department').then(resp => {
                         if (resp) {
                             this.allDeps = resp;
                             window.sessionStorage.setItem("deps", JSON.stringify(resp));
@@ -838,9 +842,21 @@
                 this.size = currentSize;
                 this.initEmps();
             },
-            initEmps(){
+            initEmps(type){
                 this.loading = true;
-                this.getRequest("/emp/basic/?page="+this.page+"&size="+this.size+"&keywords="+this.keywords)
+                let url = '/employee/basic/?page='+this.page+"&size="+this.size;
+                if(type && type == 'advanced'){
+                    url += '&politicid=' + this.searchValue.politicid
+                        + '&nationid=' + this.searchValue.nationid
+                        + '&joblevelid=' + this.searchValue.joblevelid
+                        + '&podis=' + this.searchValue.posid
+                        + '&engageform=' + this.searchValue.engageform
+                        + '&departmentid=' + this.searchValue.departmentid
+                        + '&begindatescope=' + this.searchValue.begindatescope;
+                }else{
+                    url += "&keywords="+this.keywords
+                }
+                this.getRequest(url)
                     .then(result => {
                     if(result){
                         this.loading = false;
