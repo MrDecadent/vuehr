@@ -13,7 +13,7 @@
                             :disabled="showAdvanceSearchView"
                             clearable>
                     </el-input>
-                    <el-button icon="el-icon-search" type="primary" size="small" :disabled="showAdvanceSearchView">
+                    <el-button icon="el-icon-search" type="primary" @click="initEmps" size="small" :disabled="showAdvanceSearchView">
                         搜索
                     </el-button>
                     <el-button type="primary" size="small"  @click="showAdvanceSearchView = !showAdvanceSearchView">
@@ -96,18 +96,17 @@
                     <el-row style="margin-top: 10px">
                         <el-col :span="5">
                             所属部门:
-                             <el-popover
-                                placement="right"
-                                title="请选择部门"
-                                width="200"
-                                trigger="manual"
-                                v-model="popVisible">
-                                <el-tree default-expand-all :data="allDeps" :props="defaultProps" :expand-on-click-node="false"
-                                            @node-click="SearchViewHandleNodeClick"></el-tree>
-                                <div style="width: 130px;display: inline-flex;font-size: 13px;border: 1px solid #dedede;height: 26px;border-radius: 5px;cursor: pointer;align-items: center;padding-left: 8px;box-sizing: border-box"
-                                    @click="showDepView"
-                                    slot="reference">
-                                    {{inputDepName}}
+                            <el-popover
+                                    placement="right"
+                                    title="请选择部门"
+                                    width="200"
+                                    trigger="manual"
+                                    v-model="popVisible2">
+                                <el-tree default-expand-all :data="allDeps" :props="defaultProps"
+                                         @node-click="SearchViewHandleNodeClick"></el-tree>
+                                <div slot="reference"
+                                     style="width: 130px;display: inline-flex;font-size: 13px;border: 1px solid #dedede;height: 26px;border-radius: 5px;cursor: pointer;align-items: center;padding-left: 8px;box-sizing: border-box;margin-left: 3px"
+                                     @click="showDepView2">{{inputDepName}}
                                 </div>
                             </el-popover>
                         </el-col>
@@ -125,7 +124,7 @@
                             </el-date-picker>
                         </el-col>
                         <el-col :span="5" :offset="4">
-                            <el-button size="mini">取消</el-button>
+                            <el-button size="mini" @click="emptySearchValue">清空选项</el-button>
                             <el-button size="mini" icon="el-icon-search" type="primary" @click="initEmps('advanced')">搜索</el-button>
                         </el-col>
                     </el-row>
@@ -621,6 +620,7 @@
                 positions:[],
                 tiptopdegrees: ['本科', '大专', '硕士', '博士', '高中', '初中', '小学', '其他'],
                 popVisible:false,
+                popVisible2:false,
                 allDeps:[],
                 defaultProps: {
                     children: 'children',
@@ -673,9 +673,22 @@
             this.initPositions();
         },
         methods:{
+            emptySearchValue(){
+                this.searchValue = {
+                    politicid: null,
+                    nationid: null,
+                    joblevelid: null,
+                    posid: null,
+                    engageform: null,
+                    departmentid: null,
+                    begindatescope: null
+                };
+                this.inputDepName = "所属部门";
+            },
             SearchViewHandleNodeClick(data){
                 this.inputDepName = data.name;
                 this.searchValue.departmentid = data.id;
+                this.popVisible2 = !this.popVisible2;
             },
             emptyEmp(){
                 this.emp = {
@@ -772,6 +785,9 @@
             showDepView(){
                 this.popVisible = !this.popVisible;
             },
+            showDepView2() {
+                this.popVisible2 = !this.popVisible2
+            },
             getMaxWordID(){
                 this.getRequest("/employee/basic/MaxWorkId").then(result => {
                     if(result){
@@ -846,13 +862,27 @@
                 this.loading = true;
                 let url = '/employee/basic/?page='+this.page+"&size="+this.size;
                 if(type && type == 'advanced'){
-                    url += '&politicid=' + this.searchValue.politicid
-                        + '&nationid=' + this.searchValue.nationid
-                        + '&joblevelid=' + this.searchValue.joblevelid
-                        + '&podis=' + this.searchValue.posid
-                        + '&engageform=' + this.searchValue.engageform
-                        + '&departmentid=' + this.searchValue.departmentid
-                        + '&begindatescope=' + this.searchValue.begindatescope;
+                    if(this.searchValue.politicid){
+                        url += '&politicid=' + this.searchValue.politicid;
+                    }
+                    if(this.searchValue.nationid){
+                        url += '&nationid=' + this.searchValue.nationid;
+                    }
+                    if(this.searchValue.joblevelid){
+                        url += '&joblevelid=' + this.searchValue.joblevelid;
+                    }
+                    if(this.searchValue.posid){
+                        url += '&podis=' + this.searchValue.posid;
+                    }
+                    if(this.searchValue.engageform){
+                        url += '&engageform=' + this.searchValue.engageform;
+                    }
+                    if(this.searchValue.departmentid){
+                        url += '&departmentid=' + this.searchValue.departmentid;
+                    }
+                    if(this.searchValue.begindatescope){
+                        url += '&begindatescope=' + this.searchValue.begindatescope;
+                    }
                 }else{
                     url += "&keywords="+this.keywords
                 }
