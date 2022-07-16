@@ -225,7 +225,7 @@
                         label="职位">
                 </el-table-column>
                 <el-table-column
-                        prop="jobLevel.name"
+                        prop="joblevel.name"
                         width="100"
                         label="职称">
                 </el-table-column>
@@ -405,7 +405,7 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="5">
-                            <el-form-item label="职称:" prop="jobLevelid">
+                            <el-form-item label="职称:" prop="joblevelid">
                                 <el-select v-model="emp.joblevelid" placeholder="职称" size="mini" style="width: 150px;">
                                     <el-option
                                             v-for="item in joblevels"
@@ -631,7 +631,7 @@
                     name:[{required: true,message: '请输入姓名' ,trigger: 'blur'}],
                     gender: [{required: true, message: '请输入性别', trigger: 'blur'}],
                     birthday: [{required: true, message: '请输入出生日期', trigger: 'blur'}],
-                    idCard: [{required: true, message: '请输入身份证号码', trigger: 'blur'}, {
+                    idcard: [{required: true, message: '请输入身份证号码', trigger: 'blur'}, {
                         pattern: /(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/,
                         message: '身份证号码格式不正确',
                         trigger: 'blur'
@@ -655,7 +655,7 @@
                     specialty: [{required: true, message: '请输入专业', trigger: 'blur'}],
                     school: [{required: true, message: '请输入毕业院校', trigger: 'blur'}],
                     begindate: [{required: true, message: '请输入入职日期', trigger: 'blur'}],
-                    workState: [{required: true, message: '请输入工作状态', trigger: 'blur'}],
+                    workstate: [{required: true, message: '请输入工作状态', trigger: 'blur'}],
                     workid: [{required: true, message: '请输入工号', trigger: 'blur'}],
                     contractterm: [{required: true, message: '请输入合同期限', trigger: 'blur'}],
                     conversiontime: [{required: true, message: '请输入转正日期', trigger: 'blur'}],
@@ -711,7 +711,7 @@
                     specialty: "",
                     school: "",
                     begindate: "",
-                    workstate: "",
+                    workstate: "在职",
                     workid: "",
                     contractterm: null,
                     conversiontime: "",
